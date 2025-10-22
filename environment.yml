@@ -1,0 +1,25 @@
+name: carpipeline
+channels:
+  - pytorch
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pytorch
+  - torchvision
+  - torchaudio
+  - numpy
+  - pandas
+  - matplotlib
+  - scikit-learn
+  - opencv
+  - pillow
+  - tqdm
+  - pyyaml
+  - jupyter
+  - pip
+  - pip:
+      - ultralytics
+      - transformers
+      - sentencepiece
+      - accelerate
+      - huggingface_hub
