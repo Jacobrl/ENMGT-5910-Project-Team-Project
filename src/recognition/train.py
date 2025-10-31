@@ -68,9 +68,12 @@ if __name__ == "__main__":
 
     model = models.resnet50(weights=ResNet50_Weights.IMAGENET1K_V1)
 
-    #freeze early layers
-    for param in model.parameters():
-        param.requires_grad = False
+    # selectively unfreeze deeper layers for fine-tuning
+    for name, param in model.named_parameters():
+        if "layer4" in name or "fc" in name:   # last block + final layer
+            param.requires_grad = True
+        else:
+            param.requires_grad = False
 
     model.fc = nn.Linear(model.fc.in_features, num_classes)
 
@@ -97,7 +100,11 @@ if __name__ == "__main__":
 
     model = model.to(device)
     criterion = nn.CrossEntropyLoss()                # loss for multi-class classification
-    optimizer = torch.optim.AdamW(model.fc.parameters(), lr=1e-3, weight_decay=1e-4)  
+    optimizer = torch.optim.AdamW(
+        filter(lambda p: p.requires_grad, model.parameters()),
+        lr=1e-4,
+        weight_decay=1e-4
+)  
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
         optimizer, mode='min', factor=0.5, patience=1
     )
@@ -174,5 +181,5 @@ if __name__ == "__main__":
 
     print("Training complete!")
 
-    # torch.save(model.state_dict(), "resnet50_car_recognition.pth")
-    # print("Model saved as resnet50_car_recognition.pth")
+    torch.save(model.state_dict(), "resnet50_car_recognition_finetuned.pth")
+    print("Saved: resnet50_car_recognition_finetuned.pth")
